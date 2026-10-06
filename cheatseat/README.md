@@ -6,7 +6,7 @@ Bộ tài liệu này được biên soạn và cấu trúc trực tiếp từ h
 
 ## 📂 CHỈ MỤC HỆ THỐNG TÀI LIỆU
 
-Bộ tài liệu được chia thành 4 chuyên đề chuyên sâu để bạn dễ dàng tra cứu nhanh khi đang thực hiện kiểm thử:
+Bộ tài liệu được chia thành 5 chuyên đề chuyên sâu để bạn dễ dàng tra cứu nhanh khi đang thực hiện kiểm thử:
 
 1.  **[01. Quy Trình Kiểm Thử & Xác Minh Lỗi (01_methodology_triage.md)](file:///d:/Backup_Nguyen/Workspaces/Sercurity/Claude-BugHunter/cheatseat/01_methodology_triage.md)**
     *   Quy trình kiểm thử 5 pha: *Recon ➔ Map ➔ Hunt ➔ Prove ➔ Report*.
@@ -18,13 +18,16 @@ Bộ tài liệu được chia thành 4 chuyên đề chuyên sâu để bạn d
     *   Bảng tổng hợp payload thực chiến, 11 cách bypass IP cho **SSRF**, bypass bộ lọc **File Upload**, WAF bypass cho **SQLi**, và **XSS JavaScript Sinks**.
 3.  **[03. Bảo Mật Web Framework & Quét Mã Nguồn Tĩnh (03_frameworks_languages.md)](file:///d:/Backup_Nguyen/Workspaces/Sercurity/Claude-BugHunter/cheatseat/03_frameworks_languages.md)**
     *   Đánh giá an toàn các framework: **Laravel** (Horizon, App_Key, Ignition RCE), **Spring Boot** (Actuators, SpEL), **Next.js**, **Node.js** (Prototype Pollution), **ASP.NET** (ViewState), và **SharePoint**.
-    *   Bảng tra cứu các lệnh **`grep` kiểm thử hộp trắng (White-box SAST)** tìm lỗi trong mã nguồn của 6 ngôn ngữ: PHP, Python, JavaScript, Go, Rust, và Ruby.
+    *   Bảng tra cứu các lệnh **`grep` kiểm thử hộp trắng (White-box SAST)** tìm lỗi trong mã nguồn của 6 ngôn ngữ: PHP, Python, JavaScript, Go, Ruby, và Rust.
 4.  **[04. Bảo Mật Hạ Tầng Doanh Nghiệp, CI/CD & Đám Mây (04_infra_cloud_cicd.md)](file:///d:/Backup_Nguyen/Workspaces/Sercurity/Claude-BugHunter/cheatseat/04_infra_cloud_cicd.md)**
     *   Tấn công hệ thống định danh: **Okta**, **M365 & Entra ID** (Azure AD).
     *   Khai thác lỗ hổng thiết bị đầu cuối: **VMware vCenter** và **SSL VPN** (Fortinet, Palo Alto, Ivanti...).
     *   Bảo mật chuỗi cung ứng **GitHub Actions CI/CD** (Expression Injection, Untrusted Checkout, Cache Poisoning).
     *   Leo thang đặc quyền đám mây (**AWS, Azure, GCP IAM Privilege Escalation**).
     *   Kiểm thử bảo mật **Smart Contracts** (Solidity/Foundry) và ứng dụng di động **Android APK**.
+5.  **[05. Hướng Dẫn Cài Đặt Các Công Cụ Kiểm Thử (05_tools_installation.md)](file:///d:/Backup_Nguyen/Workspaces/Sercurity/Claude-BugHunter/cheatseat/05_tools_installation.md)**
+    *   Hướng dẫn lệnh tải và cài đặt các công cụ: `subfinder`, `httpx`, `katana`, `naabu`, `nuclei`, `dnsx`, `interactsh`, `notify`, `anew`, `gau`, `uro`, `trufflehog`, `arjun`, `ghauri`, `sqlmap`, `ffuf`, `sisakulint`, `jadx`, `frida`, `foundry`.
+    *   Cách khởi chạy các môi trường lab thực hành cục bộ bằng Docker (Juice Shop, DVWA).
 
 ---
 

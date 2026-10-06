@@ -59,10 +59,10 @@ graph TD
 *   **Công cụ & Lệnh thực thi:**
     ```bash
     # Quét thụ động từ các nguồn API miễn phí bằng subfinder
-    subfinder -d target.com -silent -o /tmp/subfinder_raw.txt
+    subfinder -d xreal.com -silent -o /tmp/subfinder_raw.txt
     
     # Lấy thêm dữ liệu từ assetfinder
-    assetfinder --subs-only target.com | anew /tmp/assetfinder_raw.txt
+    assetfinder --subs-only xreal.com | anew /tmp/assetfinder_raw.txt
     
     # Gộp và loại bỏ trùng lặp
     cat /tmp/subfinder_raw.txt /tmp/assetfinder_raw.txt | anew /tmp/passive_subdomains.txt
@@ -77,10 +77,10 @@ graph TD
 #### 📌 Node 1.1a: Google Dorking thủ công để tìm Subdomain
 *   **Mô tả & Rationale:** Khi các công cụ tự động bị chặn hoặc không tìm thấy kết quả, sử dụng các toán tử tìm kiếm nâng cao của Google để tìm các subdomain được lập chỉ mục (index).
 *   **Toán tử tìm kiếm:**
-    *   `site:*.target.com` (Tìm tất cả subdomain của target.com)
-    *   `site:*.target.com -www -mail` (Tìm subdomain nhưng loại trừ trang www và mail để giảm nhiễu)
-    *   `site:*.target.com intitle:"login" | intitle:"signin"` (Tìm các trang đăng nhập)
-    *   `site:*.target.com filetype:pdf | filetype:xls | filetype:xlsx` (Tìm tài liệu bị lộ)
+    *   `site:*.xreal.com` (Tìm tất cả subdomain của xreal.com)
+    *   `site:*.xreal.com -www -mail` (Tìm subdomain nhưng loại trừ trang www và mail để giảm nhiễu)
+    *   `site:*.xreal.com intitle:"login" | intitle:"signin"` (Tìm các trang đăng nhập)
+    *   `site:*.xreal.com filetype:pdf | filetype:xls | filetype:xlsx` (Tìm tài liệu bị lộ)
 *   **Quyết định tiếp theo:** Lưu các subdomain tìm được vào `/tmp/passive_subdomains.txt` và chuyển sang **Node 1.2**.
 
 ---
@@ -97,7 +97,7 @@ graph TD
     #   -follow-redirects: Chuyển hướng theo mã 301/302 để kiểm tra URL đích
     httpx -l /tmp/passive_subdomains.txt -status-code -title -tech-detect -follow-redirects -silent -o /tmp/live_web_servers.txt
     ```
-*   **Kết quả mong đợi:** Danh sách các URL đang hoạt động kèm thông tin công nghệ (Ví dụ: `https://dev.target.com [200] [React] [Nginx]`).
+*   **Kết quả mong đợi:** Danh sách các URL đang hoạt động kèm thông tin công nghệ (Ví dụ: `https://dev.xreal.com [200] [React] [Nginx]`).
 *   **Nhánh quyết định tiếp theo:**
     *   *Phát hiện các host chứa từ khóa nhạy cảm (dev, staging, admin, internal, api, v1, v2):* Chuyển các host này vào danh sách **Ưu tiên 1 (Priority 1 - P1)** để tiến hành quét sâu.
     *   *Phát hiện các host trả về mã lỗi 403 Forbidden hoặc 401 Unauthorized:* Chuyển sang **Node 1.2a (Bypass 403/401)**.
@@ -110,16 +110,16 @@ graph TD
 *   **Công cụ & Lệnh thực thi (Bypass qua HTTP Header):**
     ```bash
     # Thử giả mạo IP nguồn nội bộ
-    curl -H "X-Forwarded-For: 127.0.0.1" -H "X-Forwarded-By: 127.0.0.1" -H "X-Forwarded-Host: localhost" -H "X-Remote-IP: 127.0.0.1" -H "X-Originating-IP: 127.0.0.1" -H "X-Client-IP: 127.0.0.1" -H "Client-IP: 127.0.0.1" -H "True-Client-IP: 127.0.0.1" -H "Cluster-Client-IP: 127.0.0.1" "https://target.com/admin"
+    curl -H "X-Forwarded-For: 127.0.0.1" -H "X-Forwarded-By: 127.0.0.1" -H "X-Forwarded-Host: localhost" -H "X-Remote-IP: 127.0.0.1" -H "X-Originating-IP: 127.0.0.1" -H "X-Client-IP: 127.0.0.1" -H "Client-IP: 127.0.0.1" -H "True-Client-IP: 127.0.0.1" -H "Cluster-Client-IP: 127.0.0.1" "https://xreal.com/admin"
     ```
 *   **Lệnh thực thi mẫu (Bypass qua Path Traversal / Unicode):**
     ```bash
     # Đọc tài nguyên bị chặn bằng cách dịch chuyển path
-    curl "https://target.com/admin/."
-    curl "https://target.com/admin/..;/"
-    curl "https://target.com/%2e/admin"
-    curl -H "X-Original-URL: /admin" "https://target.com/anything"
-    curl -H "X-Rewrite-URL: /admin" "https://target.com/anything"
+    curl "https://xreal.com/admin/."
+    curl "https://xreal.com/admin/..;/"
+    curl "https://xreal.com/%2e/admin"
+    curl -H "X-Original-URL: /admin" "https://xreal.com/anything"
+    curl -H "X-Rewrite-URL: /admin" "https://xreal.com/anything"
     ```
 *   **Quyết định tiếp theo:** Áp dụng **Body-Diff Rule** (Xem mục 2). Nếu nội dung phản hồi thay đổi và lộ dữ liệu nhạy cảm ➔ Xác nhận bypass ➔ Chuyển sang Pha 3. Nếu không ➔ Dừng lại, chuyển sang host khác.
 
@@ -130,15 +130,11 @@ graph TD
 *   **Công cụ & Lệnh thực thi:**
     ```bash
     # Thu thập URL lịch sử từ Wayback Machine và AlienVault OTX
-    gau target.com --subs | anew /tmp/urls_raw.txt
-    waybackurls target.com | anew /tmp/urls_raw.txt
+    gau xreal.com --subs | anew /tmp/urls_raw.txt
+    waybackurls xreal.com | anew /tmp/urls_raw.txt
     
-    # Bò chủ động bằng katana để quét các link sinh ra từ mã JS
-    # Tham số: 
-    #   -d 3: Độ sâu bò (depth) là 3
-    #   -jc: Kích hoạt quét và phân tích file Javascript tĩnh
-    #   -kf all: Thu thập tất cả phần mở rộng
-    katana -l /tmp/live_web_servers.txt -d 3 -jc -kf all -silent -o /tmp/katana_raw.txt
+    # Lọc lấy URL thô và bò bằng katana để quét các link sinh ra từ mã JS
+    cat /tmp/live_web_servers.txt | awk '{print $1}' | katana -d 3 -jc -kf all -silent -o /tmp/katana_raw.txt
     
     # Gộp và lọc trùng bằng uro để loại bỏ các URL trùng cấu trúc tham số
     cat /tmp/urls_raw.txt /tmp/katana_raw.txt | uro | anew /tmp/urls_clean.txt
@@ -154,17 +150,24 @@ graph TD
 *   **Mô tả & Rationale:** Phân tích các file JS tĩnh tải về trình duyệt để tìm kiếm endpoint ẩn, thông tin cấu hình và API keys rò rỉ.
 *   **Công cụ & Lệnh thực thi:**
     ```bash
-    # Lọc danh sách file JS sạch
-    cat /tmp/urls_clean.txt | grep "\.js$" | sort -u > /tmp/js_files.txt
+    # Lọc danh sách file JS thô từ các URL đã thu thập
+    cat /tmp/urls_clean.txt | grep "\.js$" | sort -u > /tmp/js_files_raw.txt
     
-    # Dùng jsluice trích xuất URL ẩn trong JS
-    jsluice urls /tmp/js_files.txt | anew /tmp/js_endpoints.txt
+    # Xác minh các URL tệp JS thực sự còn hoạt động (phản hồi 200 OK)
+    httpx -l /tmp/js_files_raw.txt -status-code -mc 200 -silent | awk '{print $1}' > /tmp/js_files.txt
     
-    # Quét secrets rò rỉ trong JS bằng trufflehog
-    trufflehog filesystem --directory=/tmp/js_downloaded/ --only-verified
+    # Tạo thư mục và tải các file JS đang hoạt động về máy local
+    mkdir -p /tmp/js_downloaded
+    wget -i /tmp/js_files.txt -P /tmp/js_downloaded/ --no-check-certificate
     
-    # Sử dụng grep nhanh tìm từ khóa nhạy cảm trong JS
-    grep -E "(api_key|apikey|secret|password|token|access_key|aws_access)" /tmp/js_files.txt
+    # Dùng jsluice trích xuất URL ẩn từ các file JS đã tải về
+    jsluice urls /tmp/js_downloaded/*.js | anew /tmp/js_endpoints.txt
+    
+    # Quét secrets rò rỉ trong mã nguồn JS bằng trufflehog
+    trufflehog filesystem /tmp/js_downloaded/ --only-verified
+    
+    # Sử dụng grep nhanh tìm từ khóa nhạy cảm trong mã nguồn JS đã tải về
+    grep -E -r -i "(api_key|apikey|secret|password|token|access_key|aws_access)" /tmp/js_downloaded/
     ```
 *   **Quyết định tiếp theo:** Nếu phát hiện API keys hoạt động hoặc endpoint mới ➔ Cập nhật vào sitemap và chuyển sang **Pha 2 (Map)**.
 
@@ -177,8 +180,8 @@ graph TD
     # Quét nhanh 1000 cổng TCP mở bằng naabu
     naabu -l /tmp/passive_subdomains.txt -top-ports 1000 -silent -o /tmp/ports_open.txt
     
-    # Quét CVEs và cấu hình sai bằng nuclei
-    nuclei -l /tmp/live_web_servers.txt -severity critical,high,medium -silent -o /tmp/nuclei_results.txt
+    # Quét CVEs và cấu hình sai bằng nuclei trên danh sách URL thô
+    cat /tmp/live_web_servers.txt | awk '{print $1}' | nuclei -severity critical,high,medium -silent -o /tmp/nuclei_results.txt
     ```
 *   **Quyết định tiếp theo:** Nếu phát hiện cổng nhạy cảm (như 6379 - Redis, 27017 - MongoDB) hoặc lỗ hổng CVE ➔ Thực hiện khai thác lập tức và chuyển sang Pha 4.
 
@@ -195,16 +198,16 @@ graph TD
                 "/actuator" "/actuator/env" "/actuator/heapdump" \
                 "/telescope" "/horizon" "/laravel-filemanager" \
                 "/.DS_Store" "/crossdomain.xml" "/clientaccesspolicy.xml"; do
-      STATUS=$(curl -s -o /tmp/source_leak_check -w "%{http_code}" --max-time 5 "https://target.com$PATH" 2>/dev/null)
+      STATUS=$(curl -s -o /tmp/source_leak_check -w "%{http_code}" --max-time 5 "https://xreal.com$PATH" 2>/dev/null)
       if [ "$STATUS" = "200" ]; then
         SIZE=$(wc -c < /tmp/source_leak_check)
-        echo "[+] PHÁT HIỆN RÒ RỈ ($STATUS - $SIZE bytes): https://target.com$PATH"
+        echo "[+] PHÁT HIỆN RÒ RỈ ($STATUS - $SIZE bytes): https://xreal.com$PATH"
       fi
     done
     ```
 *   **Kiểm tra Source Map của Next.js/React:**
     1. Tìm file JS chính trên giao diện trang chủ (ví dụ: `main-1a2b3c.js`).
-    2. Gửi request tải file `.map` tương ứng: `curl https://target.com/_next/static/chunks/main-1a2b3c.js.map`.
+    2. Gửi request tải file `.map` tương ứng: `curl https://xreal.com/_next/static/chunks/main-1a2b3c.js.map`.
     3. Nếu file tồn tại, dùng công cụ `restore-source-tree` để khôi phục lại mã nguồn gốc.
 *   **Quyết định tiếp theo:** Nếu tải được file `.env` hoặc mã nguồn ➔ Xác nhận lỗi Nghiêm trọng (Critical). Trích xuất API keys và chuyển sang Pha 4.
 
@@ -215,16 +218,16 @@ graph TD
 *   **Các lệnh thực thi:**
     ```bash
     # 1. Kiểm tra bản ghi SPF và DMARC chống giả mạo email
-    dig TXT target.com +short | grep "v=spf1"
-    dig TXT _dmarc.target.com +short
+    dig TXT xreal.com +short | grep "v=spf1"
+    dig TXT _dmarc.xreal.com +short
     
     # 2. Thử nghiệm truyền vùng DNS (Zone Transfer - AXFR)
-    for NS in $(dig NS target.com +short); do
-      dig AXFR target.com @$NS
+    for NS in $(dig NS xreal.com +short); do
+      dig AXFR xreal.com @$NS
     done
     
     # 3. Kiểm tra tiêu đề bảo mật HSTS (Strict-Transport-Security)
-    curl -sI "https://target.com/" | grep -i "strict-transport-security"
+    curl -sI "https://xreal.com/" | grep -i "strict-transport-security"
     ```
 *   **Dấu hiệu lỗ hổng:**
     *   Bản ghi SPF chứa tham số `+all` (cho phép bất kỳ IP nào gửi mail mạo danh domain này).
@@ -251,10 +254,10 @@ graph TD
 *   **Công cụ & Lệnh thực thi:**
     ```bash
     # Brute-force tìm tham số GET bằng arjun
-    arjun -u https://target.com/api/v1/profile -m GET -oT /tmp/hidden_get_params.txt
+    arjun -u https://xreal.com/api/v1/profile -m GET -oT /tmp/hidden_get_params.txt
     
     # Brute-force tìm tham số POST JSON
-    arjun -u https://target.com/api/v1/profile -m POST --json -oT /tmp/hidden_post_params.txt
+    arjun -u https://xreal.com/api/v1/profile -m POST --json -oT /tmp/hidden_post_params.txt
     ```
 *   **Quyết định tiếp theo:** Cập nhật các tham số mới phát hiện vào danh sách kiểm thử của Pha 3.
 
@@ -385,33 +388,33 @@ Bộ công cụ `cbh` (Claude-BugHunter CLI) là bộ lệnh điều khiển ch�
 *   **Mô tả:** Chạy toàn bộ chu trình thu thập subdomain, dò cổng dịch vụ và quét IP.
 *   **Cú pháp:**
     ```bash
-    cbh recon target.com
+    cbh recon xreal.com
     ```
 *   **Ví dụ nâng cao:**
     ```bash
     # Quét nhanh bỏ qua việc tìm kiếm URLs lịch sử
-    cbh recon target.com --fast
+    cbh recon xreal.com --fast
     ```
 
 ### Lệnh 2: `/surface` - Lọc và hiển thị bề mặt tấn công
 *   **Mô tả:** Phân loại các URL thu hoạch được theo các nhóm lỗ hổng mục tiêu.
 *   **Cú pháp:**
     ```bash
-    cbh surface target.com
+    cbh surface xreal.com
     ```
 
 ### Lệnh 3: `/intel` - Phân tích sâu thông tin DNS/TLS
 *   **Mô tả:** Kiểm tra các cấu hình lỗi SPF, DMARC, DNS Zone Transfer và chứng chỉ TLS.
 *   **Cú pháp:**
     ```bash
-    cbh intel target.com
+    cbh intel xreal.com
     ```
 
 ### Lệnh 4: `/hunt` - Săn tìm lỗ hổng tự động
 *   **Mô tả:** Chạy các mẫu quét lỗ hổng theo danh sách tham số đầu vào được phát hiện.
 *   **Cú pháp:**
     ```bash
-    cbh hunt target.com --bug-class sqli,ssrf
+    cbh hunt xreal.com --bug-class sqli,ssrf
     ```
 
 ### Lệnh 5: `/validate` - Xác minh lỗ hổng sâu
@@ -432,7 +435,7 @@ Bộ công cụ `cbh` (Claude-BugHunter CLI) là bộ lệnh điều khiển ch�
 *   **Mô tả:** Lưu trạng thái, session cookie hoặc cấu hình mục tiêu vào DB nội bộ.
 *   **Cú pháp:**
     ```bash
-    cbh remember --target target.com --cookie "session=abc123xyz"
+    cbh remember --target xreal.com --cookie "session=abc123xyz"
     ```
 
 ### Lệnh 8: `/report` - Tự động tạo báo cáo lỗi theo mẫu
@@ -453,5 +456,5 @@ Bộ công cụ `cbh` (Claude-BugHunter CLI) là bộ lệnh điều khiển ch�
 *   **Mô tả:** Chạy tự động chuỗi lệnh từ Recon ➔ Map ➔ Hunt ➔ Triage không cần tương tác của người dùng.
 *   **Cú pháp:**
     ```bash
-    cbh autopilot target.com
+    cbh autopilot xreal.com
     ```
